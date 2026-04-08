@@ -1,0 +1,2 @@
+
+export const cities: any[] = [];
