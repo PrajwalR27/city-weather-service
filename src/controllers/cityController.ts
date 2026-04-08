@@ -48,3 +48,29 @@ export const getCities = (req: Request, res: Response) => {
         data: cities,
     });
 };
+
+export const deleteCity = (req: Request, res: Response) => {
+    const name = req.params.name as string;
+
+    if (!name) {
+        return res.status(400).json({
+            message: "City name is required",
+        });
+    }
+
+    const index = cities.findIndex((city) => 
+      city.name?.toLowerCase() === name.toLowerCase()
+);
+
+    if (index === -1) {
+        return res.status(404).json({
+            message: "City not found",
+        });
+    }
+
+    cities.splice(index, 1);
+
+    return res.status(200).json({ 
+        message: "City deleted successfully",
+    });
+};
