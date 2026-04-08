@@ -30,7 +30,21 @@ export const addCity = async (req: Request, res: Response) => {
             data: city,
         });
     } catch (err: any) {
-        res.status(404).json({ message: err.message });
-    }
+        res.status(404).json({ message: err.message || "Error fetching city data",
 
+         });
+    }
+};
+
+export const getCities = (req: Request, res: Response) => {
+    if (cities.length === 0) {
+        return res.status(200).json({
+            message: "No cities found",
+            data: [],
+        });
+    }
+    return res.status(200).json({
+        message: "Cities fetched successfully",
+        data: cities,
+    });
 };
