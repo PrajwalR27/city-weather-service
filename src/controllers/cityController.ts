@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import { citySchema } from "../validators/cityValidator";
 import { getCoordinates } from "../services/locationService";
+import { getWeather, transformWeather } from "../services/weatherService";
 import { cities } from "../data/store";
 
 export const addCity = async (req: Request, res: Response) => {
@@ -74,3 +75,33 @@ export const deleteCity = (req: Request, res: Response) => {
         message: "City deleted successfully",
     });
 };
+
+export const getCityInsights = async (req: Request, res: Response) => {
+    const name = req.params.name as string;
+
+    const city = cities.find(
+        (c) => c.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (!city) {
+        return res.status(404).json({
+            message: "City not found",
+        });
+    }
+
+    try {
+
+        const weather = await getWeather(city.latitude, city.longitude);
+
+        const result = transformWeather(name, weather);
+
+        return res.status(200).json({
+            message: "Weather insights fetched successfully",
+            data: result,
+        });
+    } catch (err: any) {
+        return res.status(500).json({
+            message: "Error fetching weather data"
+        });
+    }
+}
