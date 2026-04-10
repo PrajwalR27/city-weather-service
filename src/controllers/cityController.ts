@@ -1,11 +1,21 @@
 
 import { Request, Response } from "express";
+import { inject, injectable } from "inversify";
 import { citySchema } from "../validators/cityValidator";
-import { getCoordinates } from "../services/locationService";
-import { getWeather, transformWeather } from "../services/weatherService";
+import { LocationService } from "../services/locationService";
+import { WeatherService } from "../services/weatherService";
 import { cities } from "../data/store";
+import { TYPES } from "../types/types";
 
-export const addCity = async (req: Request, res: Response) => {
+@injectable()
+export class CityController {
+    constructor(
+        @inject(TYPES.WeatherService) private weatherService: WeatherService,
+        @inject(TYPES.LocationService) private locationService: LocationService
+    ) {}
+ 
+    // POST 
+ addCity = async (req: Request, res: Response) => {
     const { error } = citySchema.validate(req.body);
 
     if (error) {
@@ -15,7 +25,7 @@ export const addCity = async (req: Request, res: Response) => {
     const { name } = req.body;
 
     try {
-        const { lat, lon } = await getCoordinates(name);
+        const { lat, lon } = await this.locationService.getCoordinates(name);
 
         const city = {
             name,
@@ -37,7 +47,8 @@ export const addCity = async (req: Request, res: Response) => {
     }
 };
 
-export const getCities = (req: Request, res: Response) => {
+// GET
+ getCities = (req: Request, res: Response) => {
     if (cities.length === 0) {
         return res.status(200).json({
             message: "No cities found",
@@ -50,7 +61,8 @@ export const getCities = (req: Request, res: Response) => {
     });
 };
 
-export const deleteCity = (req: Request, res: Response) => {
+  // DELETE
+deleteCity = (req: Request, res: Response) => {
     const name = req.params.name as string;
 
     if (!name) {
@@ -75,8 +87,8 @@ export const deleteCity = (req: Request, res: Response) => {
         message: "City deleted successfully",
     });
 };
-
-export const getCityInsights = async (req: Request, res: Response) => {
+// GET INSIGHTS
+ getCityInsights = async (req: Request, res: Response) => {
     const name = req.params.name as string;
 
     const city = cities.find(
@@ -91,9 +103,10 @@ export const getCityInsights = async (req: Request, res: Response) => {
 
     try {
 
-        const weather = await getWeather(city.latitude, city.longitude);
+        const weather = await this.weatherService.getWeather(Number(city.latitude), Number(city.longitude)
+    );
 
-        const result = transformWeather(name, weather);
+        const result = this.weatherService.transformWeather(name, weather);
 
         return res.status(200).json({
             message: "Weather insights fetched successfully",
@@ -104,4 +117,5 @@ export const getCityInsights = async (req: Request, res: Response) => {
             message: "Error fetching weather data"
         });
     }
+};
 }
