@@ -20,8 +20,9 @@ const cityController = new CityController(
 
 app.post("/api/v1/cities", cityController.addCity);
 app.get("/api/v1/cities", cityController.getCities);
-app.delete("/api/v1/cities/:name", cityController.deleteCity);
+app.get("/api/v1/cities/search", cityController.searchCities);
 app.get("/api/v1/cities/:name/insights", cityController.getCityInsights);
+app.delete("/api/v1/cities/:name", cityController.deleteCity);
 
 app.listen(3000, () => {
     console.log("Server running on port 3000");

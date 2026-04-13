@@ -118,4 +118,21 @@ deleteCity = (req: Request, res: Response) => {
         });
     }
 };
+
+searchCities = (req: Request, res: Response) => {
+    const prefix = req.query.prefix as string;
+
+    if (!prefix) {
+        return res.status(404).json({ message: "Prefix is required"});
+    }
+
+    const lowerPrefix = prefix.toLowerCase();
+
+    const results = cities
+     .map((c) => c.name)
+     .filter((name) => 
+    name.toLowerCase().startsWith(prefix.toLowerCase())
+    );
+    return res.status(200).json(results);
+}
 }
